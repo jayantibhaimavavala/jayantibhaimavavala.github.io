@@ -396,21 +396,7 @@
             padding: 0;
         }
 
-        .item-price {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 14pt;
-            font-weight: 700;
-            background: linear-gradient(135deg, #ffd700 0%, #f9a825 100%);
-            color: #000;
-            padding: 2mm 4mm;
-            margin: 0 0 0 3mm;
-            border-radius: 20px;
-            white-space: nowrap;
-            box-shadow: 0 3px 12px rgba(249, 168, 37, 0.4);
-            letter-spacing: 0.5px;
-            flex-shrink: 0;
-            line-height: 1;
-        }
+        
 
         .live-section {
             background: linear-gradient(135deg, #d32f2f 0%, #8b0000 100%);
@@ -726,29 +712,13 @@
 
         <div class="divider"></div>
 
-      <div class="footer">
-    <p class="premium-text">Premium Quality Since 1980</p>
-
-    <p style="font-size: 12pt; margin-top: 4mm;">
-        🙏 તમારા પ્રેમ અને સહયોગ માટે આભાર 🙏
-    </p>
-
-    <p style="color: #bbb;">
-        Thank you for your love and support
-    </p>
-
-    <div class="divider"></div>
-
-    <p style="margin-top: 4mm; font-size: 9pt; color: #777;">
-        Made with ❤️ for our valued customers
-    </p>
-
-    <!-- Legal notice -->
-    <p style="margin-top: 3mm; font-size: 8pt; color: #666;">
-        © 2026 Jayantibhai Mavavala. All Rights Reserved.
-    </p>
-</div>
-
+        <div class="footer">
+            <p class="premium-text">Premium Quality Since 1980</p>
+            <p style="font-size: 12pt; margin-top: 4mm;">🙏 તમારા પ્રેમ અને સહયોગ માટે આભાર 🙏</p>
+            <p style="color: #bbb;">Thank you for your love and support</p>
+            <div class="divider"></div>
+            <p style="margin-top: 4mm; font-size: 9pt; color: #777;">Made with ❤️ for our valued customers</p>
+        </div>
 
         <div class="corner-decoration bottom-left"></div>
         <div class="corner-decoration bottom-right"></div>
@@ -866,7 +836,6 @@ function createMenuItem(item) {
         ${item.nameEn ? `<div class="item-name-en">${item.nameEn}</div>` : ''}
         ${item.description ? `<div class="item-description">${item.description}</div>` : ''}
       </div>
-      <div class="item-price">₹${item.price || 'N/A'}</div>
     </div>
   `;
 }
@@ -988,26 +957,71 @@ async function loadMenu() {
     const LIVE_FOOD_API = "https://script.google.com/macros/s/AKfycbxuAXUJjGaqicOouNEMqi38rbu3KZ4UvpN9HkeOAM58-XB5C2nt77v9Y1U8yqY1MsMS/exec";
     const WINTER_SEASONAL_API = "https://script.google.com/macros/s/AKfycbwdJsDabASb9OwwEtcrhFcdy-HO1IzpRYssxL0r4w1qvaf3XAu72kA0uNzD_C6-AoHz/exec";
     const SUMMER_SEASONAL_API = "https://script.google.com/macros/s/AKfycbz-CcPsfGAGdUc5RB_bAbqsPGjKXScajMyULOIuX9zp_7Ft4booUy_0a0EdpIaj0GQ7/exec";
+    const ROASTED_NAMKEEN_API = "https://script.google.com/macros/s/AKfycbzLAMOph8zVWaj9JNQ3qgaapTEJCHe_P99XBOLIdfaHiULLXrkSdJ8qSbMkVvaNL4WG/exec"; // Disabled - set to proper URL when available
     
-    console.log('Fetching from multiple APIs...');
+    // Fetch data with individual error handling
+    let namkeenData = [], roastedNamkeenData = [], sweetsData = [], liveFoodData = [], winterData = [], summerData = [];
     
-    // Fetch all data in parallel - Include both winter and summer
-    const [namkeenResponse, sweetsResponse, liveFoodResponse, winterResponse, summerResponse] = await Promise.all([
-      fetch(NAMKEEN_API),
-      fetch(SWEETS_API),
-      fetch(LIVE_FOOD_API),
-      fetch(WINTER_SEASONAL_API),
-      fetch(SUMMER_SEASONAL_API)
-    ]);
+    // Fetch Namkeen
+    try {
+      const response = await fetch(NAMKEEN_API);
+      namkeenData = await response.json();
+      console.log('✓ Namkeen data loaded');
+    } catch (error) {
+      console.error('✗ Namkeen API failed:', error);
+    }
     
-    // Parse all responses
-    const namkeenData = await namkeenResponse.json();
-    const sweetsData = await sweetsResponse.json();
-    const liveFoodData = await liveFoodResponse.json();
-    const winterData = await winterResponse.json();
-    const summerData = await summerResponse.json();
+    // Fetch Roasted Namkeen (only if API is configured)
+    if (ROASTED_NAMKEEN_API) {
+      try {
+        const response = await fetch(ROASTED_NAMKEEN_API);
+        roastedNamkeenData = await response.json();
+        console.log('✓ Roasted Namkeen data loaded');
+      } catch (error) {
+        console.error('✗ Roasted Namkeen API failed:', error);
+      }
+    } else {
+      console.log('⊘ Roasted Namkeen API not configured - skipping');
+    }
+    
+    // Fetch Sweets
+    try {
+      const response = await fetch(SWEETS_API);
+      sweetsData = await response.json();
+      console.log('✓ Sweets data loaded');
+    } catch (error) {
+      console.error('✗ Sweets API failed:', error);
+    }
+    
+    // Fetch Live Food
+    try {
+      const response = await fetch(LIVE_FOOD_API);
+      liveFoodData = await response.json();
+      console.log('✓ Live Food data loaded');
+    } catch (error) {
+      console.error('✗ Live Food API failed:', error);
+    }
+    
+    // Fetch Winter Seasonal
+    try {
+      const response = await fetch(WINTER_SEASONAL_API);
+      winterData = await response.json();
+      console.log('✓ Winter data loaded');
+    } catch (error) {
+      console.error('✗ Winter API failed:', error);
+    }
+    
+    // Fetch Summer Seasonal
+    try {
+      const response = await fetch(SUMMER_SEASONAL_API);
+      summerData = await response.json();
+      console.log('✓ Summer data loaded');
+    } catch (error) {
+      console.error('✗ Summer API failed:', error);
+    }
     
     console.log('Namkeen Data:', namkeenData);
+    console.log('Roasted Namkeen Data:', roastedNamkeenData);
     console.log('Sweets Data:', sweetsData);
     console.log('Live Food Data:', liveFoodData);
     console.log('Winter Data:', winterData);
@@ -1015,12 +1029,14 @@ async function loadMenu() {
     
     // Extract arrays from response (handle different formats)
     const namkeenArray = Array.isArray(namkeenData) ? namkeenData : (namkeenData.data || namkeenData.values || []);
+    const roastedNamkeenArray = Array.isArray(roastedNamkeenData) ? roastedNamkeenData : (roastedNamkeenData.data || roastedNamkeenData.values || []);
     const sweetsArray = Array.isArray(sweetsData) ? sweetsData : (sweetsData.data || sweetsData.values || []);
     const liveFoodArray = Array.isArray(liveFoodData) ? liveFoodData : (liveFoodData.data || liveFoodData.values || []);
     const winterArray = Array.isArray(winterData) ? winterData : (winterData.data || winterData.values || []);
     const summerArray = Array.isArray(summerData) ? summerData : (summerData.data || summerData.values || []);
     
     console.log('Namkeen Array:', namkeenArray.length, 'items');
+    console.log('Roasted Namkeen Array:', roastedNamkeenArray.length, 'items');
     console.log('Sweets Array:', sweetsArray.length, 'items');
     console.log('Live Food Array:', liveFoodArray.length, 'items');
     console.log('Winter Array:', winterArray.length, 'items');
@@ -1031,27 +1047,32 @@ async function loadMenu() {
       name: row.name || '',
       nameEn: row.nameEn || '',
       description: row.description || '',
-      price: row.price || '',
       page: row.page || 'Farsan (ફરસાણ)',
       image: row.image || ''
-    })).filter(item => item.name && item.price);
-    
+    })).filter(item => item.name);
+    // Include roasted namkeen items
+    const roastedNamkeenItems = roastedNamkeenArray.map(row => ({
+      name: row.name || '',
+      nameEn: row.nameEn || '',
+      description: row.description || '',
+      page: row.page || 'Roasted Namkeen (રોસ્ટેડ નમકીન)',
+      image: row.image || ''
+    })).filter(item => item.name);
+
     // Process Sweets items
     const sweetsItems = sweetsArray.map(row => ({
       name: row.name || '',
       nameEn: row.nameEn || '',
       description: row.description || '',
-      price: row.price || '',
       page: row.page || 'Sweets (શુદ્ધ મીઠાઈઓ)',
       image: row.image || ''
-    })).filter(item => item.name && item.price);
+    })).filter(item => item.name);
     
     // Process Live Food items
     const liveFoodItems = liveFoodArray.map(row => ({
       name: row.name || '',
       nameEn: row.nameEn || '',
       description: row.description || '',
-      price: row.price || '',
       category: row.category || 'તાજા બનાવેલા લાઈવ ફરસાણ',
       page: 'લાઈવ ફરસાણ (Live Farsan)',
       image: row.image || '',
@@ -1065,7 +1086,6 @@ async function loadMenu() {
         name: itemName.trim(),
         nameEn: row.nameEn || '',
         description: row.description || '',
-        price: row.price || '',
         category: row.category || 'શિયાળાની ખાસ વાનગીઓ',
         page: row.page || 'શિયાળાની ખાસ વાનગીઓ (Winter Special)',
         image: row.image || '',
@@ -1089,7 +1109,6 @@ async function loadMenu() {
         name: itemName.trim(),
         nameEn: row.nameEn || '',
         description: row.description || '',
-        price: row.price || '',
         category: row.category || 'ઉનાળાની ખાસ વાનગીઓ',
         page: row.page || 'ઉનાળાની ખાસ વાનગીઓ (Summer Special)',
         image: row.image || '',
@@ -1107,11 +1126,12 @@ async function loadMenu() {
     });
     
     // Combine all items
-    const allMenuItems = [...namkeenItems, ...sweetsItems, ...liveFoodItems, ...winterItems, ...summerItems];
+    const allMenuItems = [...namkeenItems, ...roastedNamkeenItems, ...sweetsItems, ...liveFoodItems, ...winterItems, ...summerItems];
     
     console.log('====== FINAL COUNTS ======');
     console.log('Total Menu Items:', allMenuItems.length);
     console.log('Namkeen Items:', namkeenItems.length);
+    console.log('Roasted Namkeen Items:', roastedNamkeenItems.length);
     console.log('Sweets Items:', sweetsItems.length);
     console.log('Live Food Items:', liveFoodItems.length);
     console.log('Winter Items:', winterItems.length);
